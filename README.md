@@ -3,7 +3,8 @@ Implementation of Modified K-Means Clustering Using Manhattan Distance    with M
 
 
 Code :
-import random
+
+mport random
 
 points = [(random.randint(0, 50), random.randint(0, 50)) for _ in range(100)]
 
@@ -52,5 +53,6 @@ for idx, center in enumerate(centers):
 print("\n2D Matrix Visualization:\n")
 for row in reversed(grid):
     print(' '.join(row))
+
 
 
