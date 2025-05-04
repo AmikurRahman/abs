@@ -1,0 +1,76 @@
+import random
+
+class NQueensGenetic:
+    def __init__(self, n, pop_size=300, max_gen=3000, mutation_prob=0.06):
+        self.n = n
+        self.population_size = pop_size
+        self.max_generations = max_gen
+        self.mutation_rate = mutation_prob
+
+    def create_individual(self):
+        return [random.randint(0, self.n - 1) for _ in range(self.n)]
+
+    def compute_fitness(self, individual):
+        non_attacks = 0
+        for i in range(self.n):
+            for j in range(i + 1, self.n):
+                if individual[i] != individual[j] and abs(individual[i] - individual[j]) != abs(i - j):
+                    non_attacks += 1
+        return non_attacks
+
+    def selection(self, population, fitness_scores):
+        selected = random.choices(list(zip(population, fitness_scores)), k=7)
+        selected.sort(key=lambda x: x[1], reverse=True)
+        return selected[0][0]
+
+    def crossover(self, parent1, parent2):
+        point = random.randint(1, self.n - 2)
+        return parent1[:point] + parent2[point:]
+
+    def mutate(self, child):
+        if random.random() < self.mutation_rate:
+            idx = random.randint(0, self.n - 1)
+            child[idx] = random.randint(0, self.n - 1)
+        return child
+
+    def evolve(self):
+        population = [self.create_individual() for _ in range(self.population_size)]
+        max_possible = self.n * (self.n - 1) // 2
+
+        for generation in range(self.max_generations):
+            fitness_list = [self.compute_fitness(ind) for ind in population]
+            best_fitness = max(fitness_list)
+
+            if best_fitness == max_possible:
+                best = population[fitness_list.index(best_fitness)]
+                print(f"Solution found at generation {generation}")
+                self.display_board(best)
+                return best
+
+            new_gen = []
+            for _ in range(self.population_size):
+                p1 = self.selection(population, fitness_list)
+                p2 = self.selection(population, fitness_list)
+                child = self.crossover(p1, p2)
+                child = self.mutate(child)
+                new_gen.append(child)
+
+            population = new_gen
+
+        print("No valid solution found within generation limit.")
+        return None
+
+    def display_board(self, config):
+        print("\nChessboard:")
+        for row in range(self.n):
+            line = ""
+            for col in range(self.n):
+                if config[col] == row:
+                    line += "Q "
+                else:
+                    line += ". "
+            print(line)
+
+if __name__ == "__main__":
+    queens_solver = NQueensGenetic(n=8)
+    queens_solver.evolve()
